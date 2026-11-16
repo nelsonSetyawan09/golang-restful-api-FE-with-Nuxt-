@@ -20,3 +20,8 @@ export interface CategoryListResponse {
   message: string;
   data: Category[];
 }
+
+export enum EditOrCreate {
+  EDIT = "Edit",
+  CREATE = "Create",
+}

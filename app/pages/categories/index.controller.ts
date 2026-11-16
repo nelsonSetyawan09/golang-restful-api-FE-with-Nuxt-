@@ -1,5 +1,6 @@
 import { defineComponent, ref, onMounted } from "vue";
 import type { Category } from "@/types/category";
+import { EditOrCreate } from "@/types/category";
 import { categoryService } from "@/services/categoryService";
 
 export default defineComponent({
@@ -7,14 +8,14 @@ export default defineComponent({
     const { categoryResponse, loading, submitting, errMsg } = useCategory();
 
     const showModal = ref(false);
-    const isEditing = ref(false);
+    const editOrCreate = ref("");
     const selectedId = ref<number | null>(null);
 
     const categories = ref<Category[]>([]);
 
     const handleSelectCategory = (category: Category) => {
       selectedId.value = category.id;
-      isEditing.value = true;
+      editOrCreate.value = "Edit";
       showModal.value = true;
     };
 
@@ -36,8 +37,11 @@ export default defineComponent({
       submitting.value = true;
 
       try {
-        if (isEditing.value && selectedId.value) {
-          await categoryService.update(selectedId.value, category as Category);
+        if (editOrCreate.value === EditOrCreate.EDIT) {
+          await categoryService.update(
+            selectedId.value as number,
+            category as Category,
+          );
         } else {
           await categoryService.create({ name: category!.name ?? "" });
         }
@@ -47,7 +51,7 @@ export default defineComponent({
 
         showModal.value = false;
         selectedId.value = null;
-        isEditing.value = false;
+        editOrCreate.value = "";
       } catch (err) {
         console.log("something wrong", err);
       } finally {
@@ -58,7 +62,7 @@ export default defineComponent({
     onMounted(fetchCategories);
 
     const showModalCreateCard = () => {
-      isEditing.value = false;
+      editOrCreate.value = "Create";
       selectedId.value = null;
       showModal.value = true;
     };
@@ -69,7 +73,7 @@ export default defineComponent({
       loading,
       submitting,
       showModal,
-      isEditing,
+      editOrCreate,
       selectedId,
       errMsg,
       handleSelectCategory,

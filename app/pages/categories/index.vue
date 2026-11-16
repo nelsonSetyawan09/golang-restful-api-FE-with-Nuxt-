@@ -53,7 +53,7 @@
     <Cate-CategoryModal
       v-model="showModal"
       :selected-id="selectedId"
-      :is-editing="isEditing"
+      :edit-or-create="editOrCreate"
       :submitting="submitting"
       @submit-category="handleCreateOrUpdateCategory"
     />
