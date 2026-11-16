@@ -31,31 +31,37 @@ export default defineComponent({
       }
     };
 
-    const handleSubmitCategory = async (category: Category | null) => {
-      if (submitting.value || !category || !selectedId.value) {
-        return;
-      }
-
+    const handleCreateOrUpdateCategory = async (category: Category | null) => {
+      if (submitting.value) return;
       submitting.value = true;
 
       try {
-        const response = await categoryService.update(
-          selectedId.value,
-          category,
-        );
+        if (isEditing.value && selectedId.value) {
+          await categoryService.update(selectedId.value, category as Category);
+        } else {
+          await categoryService.create({ name: category!.name ?? "" });
+        }
 
         // Refresh categories
         await fetchCategories();
 
-        // Close modal
         showModal.value = false;
+        selectedId.value = null;
+        isEditing.value = false;
       } catch (err) {
         console.log("something wrong", err);
       } finally {
         submitting.value = false;
       }
     };
+
     onMounted(fetchCategories);
+
+    const showModalCreateCard = () => {
+      isEditing.value = false;
+      selectedId.value = null;
+      showModal.value = true;
+    };
 
     return {
       categoryResponse,
@@ -68,7 +74,8 @@ export default defineComponent({
       errMsg,
       handleSelectCategory,
       fetchCategories,
-      handleSubmitCategory,
+      handleCreateOrUpdateCategory,
+      showModalCreateCard,
     };
   },
 });

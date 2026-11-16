@@ -23,10 +23,10 @@
 
           <button
             type="button"
-            class="text-gray-400 transition hover:text-gray-700"
+            class="text-gray-400 transition hover:text-gray-700 cursor-pointer"
             @click="closeModal"
           >
-            <Icon name="lucide:x" class="h-5 w-5" />
+            <Icon name="lucide:x" size="20" class="cursor-pointer" />
           </button>
         </div>
 
@@ -130,12 +130,15 @@ const fetchCategory = async () => {
 
 // Mengisi form ketika edit category
 watch(
-  () => [props.isEditing, props.selectedId],
+  () => [props.modelValue, props.isEditing, props.selectedId],
   () => {
+    if (!props.modelValue) return;
+
     if (props.isEditing && props.selectedId) {
       fetchCategory();
     } else {
       formName.value = "";
+      category.value = null;
     }
   },
   { immediate: true },
@@ -161,6 +164,8 @@ const submitCategory = () => {
 
 // Close modal
 const closeModal = () => {
+  formName.value = "";
+  category.value = null;
   emit("update:modelValue", false);
 };
 </script>
