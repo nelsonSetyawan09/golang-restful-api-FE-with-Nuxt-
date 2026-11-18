@@ -18,7 +18,7 @@
           class="flex items-center justify-between border-b border-gray-200 px-6 py-4"
         >
           <h2 class="text-lg font-semibold text-gray-800">
-            {{ isEditing ? "Edit Category" : "Add Category" }}
+            {{ editOrCreate }}
           </h2>
 
           <button
@@ -70,7 +70,7 @@
               :disabled="submitting || !formName.trim()"
               class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {{ submitting ? "Saving..." : isEditing ? "Update" : "Save" }}
+              {{ submitting ? "Saving..." : editOrCreate }}
             </button>
           </div>
         </form>
@@ -81,19 +81,20 @@
 
 <script setup lang="ts">
 import type { Category } from "@/types/category";
-
 import { categoryService } from "@/services/categoryService";
-const { loading, errMsg } = useCategory();
+
+const loading = ref(false);
+const errMsg = ref("");
 
 interface Props {
   modelValue: boolean;
-  isEditing?: boolean;
+  editOrCreate: string;
   selectedId?: number | null;
   submitting: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  isEditing: false,
+  editOrCreate: "",
   selectedId: null,
   submitting: false,
 });
@@ -130,11 +131,11 @@ const fetchCategory = async () => {
 
 // Mengisi form ketika edit category
 watch(
-  () => [props.modelValue, props.isEditing, props.selectedId],
+  () => [props.modelValue, props.editOrCreate, props.selectedId],
   () => {
     if (!props.modelValue) return;
 
-    if (props.isEditing && props.selectedId) {
+    if (props.editOrCreate && props.selectedId) {
       fetchCategory();
     } else {
       formName.value = "";
@@ -147,7 +148,7 @@ watch(
 const submitCategory = () => {
   const name = formName.value.trim();
   if (!name || props.submitting) return;
-  if (props.isEditing && category.value) {
+  if (props.editOrCreate && category.value) {
     category.value = {
       ...category.value,
       name,
@@ -164,6 +165,7 @@ const submitCategory = () => {
 
 // Close modal
 const closeModal = () => {
+  if (props.submitting || loading.value) return;
   formName.value = "";
   category.value = null;
   emit("update:modelValue", false);

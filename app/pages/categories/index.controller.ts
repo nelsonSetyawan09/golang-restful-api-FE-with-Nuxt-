@@ -1,20 +1,26 @@
 import { defineComponent, ref, onMounted } from "vue";
 import type { Category } from "@/types/category";
+import { EditOrCreate } from "@/types/category";
 import { categoryService } from "@/services/categoryService";
 
 export default defineComponent({
   setup() {
-    const { categoryResponse, loading, submitting, errMsg } = useCategory();
-
+    const loading = ref(true);
+    const submitting = ref(false);
+    const errMsg = ref("");
     const showModal = ref(false);
-    const isEditing = ref(false);
+    const editOrCreate = ref("");
     const selectedId = ref<number | null>(null);
+    const showDeleteModal = ref(false);
+    const deleteLoading = ref(false);
 
     const categories = ref<Category[]>([]);
+    const selectedCategory = ref<Category | null>(null);
 
     const handleSelectCategory = (category: Category) => {
       selectedId.value = category.id;
-      isEditing.value = true;
+      editOrCreate.value = "Edit";
+      selectedCategory.value = category;
       showModal.value = true;
     };
 
@@ -36,8 +42,11 @@ export default defineComponent({
       submitting.value = true;
 
       try {
-        if (isEditing.value && selectedId.value) {
-          await categoryService.update(selectedId.value, category as Category);
+        if (editOrCreate.value === EditOrCreate.EDIT) {
+          await categoryService.update(
+            selectedId.value as number,
+            category as Category,
+          );
         } else {
           await categoryService.create({ name: category!.name ?? "" });
         }
@@ -47,7 +56,7 @@ export default defineComponent({
 
         showModal.value = false;
         selectedId.value = null;
-        isEditing.value = false;
+        editOrCreate.value = "";
       } catch (err) {
         console.log("something wrong", err);
       } finally {
@@ -55,27 +64,54 @@ export default defineComponent({
       }
     };
 
+    const handleDeleteCategory = (category: Category) => {
+      selectedCategory.value = category;
+      selectedId.value = category.id;
+      showDeleteModal.value = true;
+    };
+
+    const deleteCategory = async () => {
+      if (deleteLoading.value || !selectedCategory.value?.id) return;
+      deleteLoading.value = true;
+      try {
+        await categoryService.delete(selectedId.value as number);
+
+        await fetchCategories();
+        selectedCategory.value = null;
+        selectedId.value = null;
+        showDeleteModal.value = false;
+      } catch {
+        errMsg.value = "Something wrong";
+      } finally {
+        deleteLoading.value = false;
+      }
+    };
+
     onMounted(fetchCategories);
 
     const showModalCreateCard = () => {
-      isEditing.value = false;
+      editOrCreate.value = "Create";
       selectedId.value = null;
       showModal.value = true;
     };
 
     return {
-      categoryResponse,
       categories,
       loading,
       submitting,
       showModal,
-      isEditing,
+      editOrCreate,
       selectedId,
       errMsg,
+      showDeleteModal,
+      deleteLoading,
+      selectedCategory,
       handleSelectCategory,
       fetchCategories,
       handleCreateOrUpdateCategory,
       showModalCreateCard,
+      handleDeleteCategory,
+      deleteCategory,
     };
   },
 });

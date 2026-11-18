@@ -20,4 +20,13 @@ export default defineNuxtConfig({
       pathPrefix: false,
     },
   ],
+  runtimeConfig: {
+    // Private environment variables
+    // Hanya tersedia di server
+
+    public: {
+      apiBaseUrl: process.env.API_URL,
+      xApiKey: process.env.X_API_KEY,
+    },
+  },
 });
