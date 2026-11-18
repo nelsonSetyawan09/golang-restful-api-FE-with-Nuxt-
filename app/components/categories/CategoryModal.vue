@@ -81,9 +81,10 @@
 
 <script setup lang="ts">
 import type { Category } from "@/types/category";
-
 import { categoryService } from "@/services/categoryService";
-const { loading, errMsg } = useCategory();
+
+const loading = ref(false);
+const errMsg = ref("");
 
 interface Props {
   modelValue: boolean;
@@ -164,6 +165,7 @@ const submitCategory = () => {
 
 // Close modal
 const closeModal = () => {
+  if (props.submitting || loading.value) return;
   formName.value = "";
   category.value = null;
   emit("update:modelValue", false);

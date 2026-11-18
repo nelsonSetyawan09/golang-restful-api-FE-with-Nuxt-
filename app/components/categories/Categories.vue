@@ -7,6 +7,7 @@
       :key="category.id"
       :category="category"
       @select="emit('select', $event)"
+      @delete="emit('delete', $event)"
     />
   </div>
 </template>
@@ -19,5 +20,6 @@ defineProps<{
 
 const emit = defineEmits<{
   select: [category: Category];
+  delete: [category: Category];
 }>();
 </script>

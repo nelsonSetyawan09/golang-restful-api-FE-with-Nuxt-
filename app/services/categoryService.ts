@@ -1,28 +1,22 @@
 import type { CategoryRequest, CategoryListResponse } from "~/types/category";
 
-const API_URL = "http://localhost:8080/api/categories";
-
-const api = $fetch.create({
-  baseURL: API_URL,
-  headers: {
-    "X-API-KEY": "RAHASIA",
-  },
-});
-
 export const categoryService = {
   // GET All
   getAll() {
-    return api<CategoryListResponse>("/");
+    const { $api } = useNuxtApp();
+    return $api<CategoryListResponse>("/");
   },
 
   // GET By ID
   getById(id: number) {
-    return api<CategoryResponse>(`/${id}`);
+    const { $api } = useNuxtApp();
+    return $api<CategoryResponse>(`/${id}`);
   },
 
   // POST
   create(data: CategoryRequest) {
-    return api("/", {
+    const { $api } = useNuxtApp();
+    return $api("/", {
       method: "POST",
       body: data,
     });
@@ -30,7 +24,8 @@ export const categoryService = {
 
   // PUT
   update(id: number, data: CategoryRequest) {
-    return api(`/${id}`, {
+    const { $api } = useNuxtApp();
+    return $api(`/${id}`, {
       method: "PUT",
       body: data,
     });
@@ -38,7 +33,8 @@ export const categoryService = {
 
   // DELETE
   delete(id: number) {
-    return api(`/${id}`, {
+    const { $api } = useNuxtApp();
+    return $api(`/${id}`, {
       method: "DELETE",
     });
   },

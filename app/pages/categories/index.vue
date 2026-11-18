@@ -45,6 +45,7 @@
         <Cate-Categories
           :categories="categories"
           @select="handleSelectCategory"
+          @delete="handleDeleteCategory"
         />
       </div>
     </div>
@@ -56,6 +57,13 @@
       :edit-or-create="editOrCreate"
       :submitting="submitting"
       @submit-category="handleCreateOrUpdateCategory"
+    />
+
+    <Cate-DeleteCategoryModal
+      v-model="showDeleteModal"
+      :category="selectedCategory"
+      :loading="deleteLoading"
+      @confirm="deleteCategory"
     />
   </div>
 </template>

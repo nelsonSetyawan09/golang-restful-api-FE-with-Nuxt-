@@ -9,6 +9,7 @@ const props = defineProps<Props>();
 
 const emit = defineEmits<{
   select: [category: Category];
+  delete: [category: Category];
 }>();
 
 const handleClick = () => {
@@ -35,6 +36,7 @@ const handleClick = () => {
       <button
         type="button"
         class="flex items-center text-red-400 transition hover:text-red-600 bg-gray-100 p-2 rounded-sm cursor-pointer"
+        @click.stop="emit('delete', category)"
       >
         <Icon name="lucide:trash" size="20" />
       </button>
